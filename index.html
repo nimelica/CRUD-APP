@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Products CRUD</title>
+  <style>
+    input[type='submit'], button, [aria-label]{
+      cursor: pointer;
+    }
+    #spoiler{
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<form action="javascript:void(0);" method="POST" onsubmit="app.Add()"> 
+  <input type="text" id="add-name" placeholder="New product">
+  <input type="submit" value="Add">
+</form>
+
+<div id="spoiler" role="aria-hidden">
+  <form action="javascript:void(0);" method="POST" id="saveEdit">
+    <input type="text" id="edit-name">
+    <input type="submit" value="Edit" /> <a onclick="CloseInput()" aria-label="Close">&#10006;</a>
+  </form>
+</div>
+
+<p id="counter"></p>
+
+<table>
+  <tr>
+    <th>Name</th>
+  </tr>
+    <tbody id="products">
+    </tbody>
+</table>
+
+<script>
+var app = new function() {
+
+  this.el = document.getElementById('products');
+
+  this.products = ['danone milk', 'oreo', 'chobani yogurt'];
+
+  this.Count = function(data) {
+    var el   = document.getElementById('counter');
+    var name = 'product';
+
+    if (data) {
+      if (data > 1) {
+        name = 'products';
+      }
+      el.innerHTML = data + ' ' + name ;
+    } else {
+      el.innerHTML = 'No ' + name;
+    }
+  };
+  
+  this.FetchAll = function() {
+    var data = '';
+
+    if (this.products.length > 0) {
+      for (i = 0; i < this.products.length; i++) {
+        data += '<tr>';
+        data += '<td>' + this.products[i] + '</td>';
+        data += '<td><button onclick="app.Edit(' + i + ')">Edit</button></td>';
+        data += '<td><button onclick="app.Delete(' + i + ')">Delete</button></td>';
+        data += '</tr>';
+      }
+    }
+
+    this.Count(this.products.length);
+    return this.el.innerHTML = data;
+  };
+
+  this.Add = function () {
+    el = document.getElementById('add-name');
+    var product = el.value;
+
+    if (product) {
+      this.products.push(product.trim());
+      el.value = '';
+      this.FetchAll(); // display the new list
+    }
+  };
+
+  this.Edit = function (item) {
+    var el = document.getElementById('edit-name');
+    el.value = this.products[item];
+    document.getElementById('spoiler').style.display = 'block';
+    self = this;
+
+    document.getElementById('saveEdit').onsubmit = function() {
+      var product = el.value;
+
+      if (product) {
+        self.products.splice(item, 1, product.trim());
+        self.FetchAll();
+        CloseInput();
+      }
+    }
+  };
+
+  this.Delete = function (item) {
+    this.products.splice(item, 1);
+    this.FetchAll();
+  };
+  
+}
+
+app.FetchAll();
+
+function CloseInput() {
+  document.getElementById('spoiler').style.display = 'none';
+}
+</script>
+</body>
+</html>
